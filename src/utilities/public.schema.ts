@@ -1,8 +1,14 @@
-import { Type } from "@sinclair/typebox"
+import { Type, type Static } from "@sinclair/typebox"
 
-const answerSchema = {
+
+
+export const answerObjectSchema = Type.Object({
         code: Type.String(),
         message: Type.String()
-}
+});
 
-export const answerObjectSchema = Type.Object(answerSchema)
+export const idObjectParams = Type.Object({
+        id: Type.String()
+});
+
+export type idParamsDto = Static<typeof idObjectParams>;
