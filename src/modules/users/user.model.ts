@@ -1,6 +1,8 @@
-import { Enum } from "@fastify/type-provider-typebox";
-import {Schema, model} from "mongoose";
+import {Schema, Types, model} from "mongoose";
 
+// ==========
+// USERS
+// ==========
 export interface IUser {
     username: string;
     email?: string;
@@ -55,3 +57,40 @@ const UserSchema = new Schema<IUser>({
 UserSchema.index({email: 1}, {unique: true, sparse: true})
 
 export const User = model<IUser>("User", UserSchema)
+
+// ====================
+// USER VERIFICATIONS
+// ====================
+export interface IUserVerification{
+    channel: string,
+    user_id: Types.ObjectId,
+    token: string,
+    expiresAt: Date
+}
+
+const userVerificationSchema = new Schema<IUserVerification>({
+    channel: {
+        type: String,
+        enum: ["sms", "email", "telegram"],
+        required: true
+    },
+    user_id: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    token: {
+        type: String,
+        required: true,
+    },
+    expiresAt: {
+        type: Date,
+        default: () => new Date(Date.now() + 3600*1000)
+    }
+},{
+    timestamps: true
+});
+
+userVerificationSchema.index({token: 1});
+
+export const UserVerify = model<IUserVerification>("UserVerify", userVerificationSchema);

@@ -52,3 +52,28 @@ export const updateUserSchema = {
         200: answerObjectSchema
     }
 };
+
+
+// ===============
+// VERIFY uSER
+// ===============
+const verifyUserBody = Type.Object({
+    channel: Type.String(),
+    token: Type.String()
+});
+
+const verifyUserServiceBody = Type.Object({
+    channel: Type.String(),
+    token: Type.String(),
+    user_id: Type.String()
+});
+
+export const verifyUserSchema =  {
+    body: verifyUserBody,
+    respnse: {
+        200: answerObjectSchema
+    }
+};
+
+export type VerifyUserDto = Static<typeof verifyUserBody>;
+export type VerifyUserServiceDto = Static<typeof verifyUserServiceBody>;
