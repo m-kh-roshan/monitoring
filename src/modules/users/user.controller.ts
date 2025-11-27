@@ -18,4 +18,4 @@ export const register = async(req: FastifyRequest<{Body: CreateUserDto}>, reply:
     return reply.status(201).send(answer('USER_CREATED', 'User created successfully'))
 };
 
-export const sendverify
+// export const sendVerify
