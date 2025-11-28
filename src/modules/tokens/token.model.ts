@@ -3,7 +3,7 @@ import { model, Schema, Types } from "mongoose";
 export interface IRefreshToken{
     token: string;
     user_id: Types.ObjectId;
-    expiredAt: Date;
+    expiredAt?: Date;
 }
 
 const refreshTokenSchema = new Schema<IRefreshToken>({

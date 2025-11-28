@@ -1,4 +1,5 @@
 // import crypto from 'crypto';
+import type { Types } from "mongoose";
 import type { idParamsDto } from "../../utilities/public.schema.js";
 import { User, UserVerify } from "./user.model.js";
 import type { CreateUserDto, VerifyUserServiceDto } from "./user.schema.js";
@@ -13,7 +14,7 @@ export const userServices = {
         return User.create(data)
     },
 
-    async find(id: idParamsDto) {
+    async find(id: Types.ObjectId) {
         return User.findById(id)
     },
 

@@ -1,5 +1,5 @@
 import { Pick, Type, type Static } from "@sinclair/typebox";
-import { answerObjectSchema, idObjectParams } from "../../utilities/public.schema.js";
+import { answerObjectSchema, idObjectParams, ResponseTokenData } from "../../utilities/public.schema.js";
 
 // ===============
 // CREATE USER
@@ -19,7 +19,7 @@ const createUserBody = Type.Object({
 export const createUserSchema = {
     body: createUserBody,
     response: {
-        201: answerObjectSchema
+        201: answerObjectSchema()
     }
 };
 
@@ -36,7 +36,7 @@ const loginUserBody = Pick(createUserBody, [
 export const loginUserSchema = {
     body: loginUserBody,
     response: {
-        200: answerObjectSchema
+        200: answerObjectSchema(ResponseTokenData)
     }
 };
 
@@ -47,12 +47,31 @@ export type LoginUserDto = Static<typeof loginUserBody>;
 // ===============
 export const updateUserSchema = {
     params: idObjectParams,
-    body: createUserSchema.body,
+    body: createUserBody,
     response: {
-        200: answerObjectSchema
+        200: answerObjectSchema()
     }
 };
 
+
+// ===============
+// USER INFO
+// ===============
+const userInfoResponseObject = Type.Object({
+    username: Type.Optional(Type.String()),
+    email: Type.Optional(Type.String()),
+    telegramChatId: Type.Optional(Type.String()),
+    phoneNumber: Type.Optional(Type.String()),
+    is_email_confirmed: Type.Optional(Type.Boolean()),
+    is_phone_confirmed: Type.Optional(Type.Boolean()),
+    is_telgram_confirmed: Type.Optional(Type.Boolean()),
+    active_channel: Type.Optional(Type.String())
+});
+export const userInfoSchema = {
+    response: {
+        200: answerObjectSchema(userInfoResponseObject)
+    }
+};
 
 // ===============
 // VERIFY uSER

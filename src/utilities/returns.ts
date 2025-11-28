@@ -7,7 +7,7 @@ export function answer(code: string, message: string, data?: any) {
         }
     }
     return {
-        code: code,
-        message: message
+        code,
+        message
     }
 }
