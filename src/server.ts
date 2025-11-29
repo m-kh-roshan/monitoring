@@ -5,6 +5,7 @@ import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import userModule from "./modules/users/user.index.js";
 import db from "./plugins/db.js";
 import authPlugin from "./plugins/auth.plugin.js";
+import siteModule from "./modules/sites/site.index.js";
 
 const app = Fastify({
     logger: {
@@ -41,6 +42,7 @@ app.get("/hello", async () => {
 });
 
 app.register(userModule, {prefix: "/api/v1/users"});
+app.register(siteModule, {prefix: "/api/v1/sites"});
 
 async function start() {
     try {
