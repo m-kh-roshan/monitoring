@@ -18,6 +18,10 @@ export const createSite = async (req: FastifyRequest, reply: FastifyReply) => {
     const urlValidateResult = await urlValidation(url);
     if (!urlValidateResult.ok) throw new AppError(`Url is not correct. ${urlValidateResult.error}`, 400, "INVALID_URL");
 
+    const setTitle = title ?? url;
+    const checkUserDuplicateTitle = await siteUserServices.findByUserAndTitle(user_id, setTitle);
+    if (checkUserDuplicateTitle) throw new AppError("This title has already been used", 409, "DUPLICATE_TITLE");
+
     const site = (
         await siteSirvices.findByUrl(url) ?? 
         await siteSirvices.create(url)
@@ -25,11 +29,6 @@ export const createSite = async (req: FastifyRequest, reply: FastifyReply) => {
 
     const checkUserDuplicateSite = await checkUserHasSite(site._id, user_id);
     if (checkUserDuplicateSite) throw new AppError("This site has already been added.", 409, "SITE_EXISTS");
-
-    const setTitle = title ?? url;
-    console.log(setTitle, title);
-    const checkUserDuplicateTitle = await siteUserServices.findByUserAndTitle(user_id, setTitle);
-    if (checkUserDuplicateTitle) throw new AppError("This title has already been used", 409, "DUPLICATE_TITLE");
 
     const data: ISiteUsers = {
         user_id,
@@ -59,14 +58,14 @@ export const updateSite = async (req: FastifyRequest, reply: FastifyReply) => {
     const setTitle = title ?? url;
 
     const checkUserDuplicateTitle = await siteUserServices.findByUserAndTitle(user_id, setTitle);
-    if (checkUserDuplicateTitle) throw new AppError("This title has already been used", 409, "DUPLICATE_TITLE");
+    if (checkUserDuplicateTitle && (checkUserDuplicateTitle._id.toString() !== checkUserDuplicateSite._id.toString())) throw new AppError("This title has already been used", 409, "DUPLICATE_TITLE");
 
     const siteByUrl = (
         await siteSirvices.findByUrl(url) ?? 
         await siteSirvices.create(url)
     );
 
-    if(siteByUrl._id !== site._id) {
+    if(siteByUrl._id.toString() !== site._id.toString()) {
         const checkUserDuplicateNewSite = await checkUserHasSite(siteByUrl._id, user_id);
         if (checkUserDuplicateNewSite) throw new AppError("This site has already been added.", 409, "SITE_EXISTS");
 
