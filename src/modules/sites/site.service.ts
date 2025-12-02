@@ -1,5 +1,5 @@
 import type { Types } from "mongoose";
-import { Site, SiteUsers, type ISiteUsers } from "./site.model.js"
+import { Site, SiteUsers, type ISite, type ISiteUsers } from "./site.model.js"
 
 export const siteSirvices = {
     async create(url: string) {
@@ -12,6 +12,25 @@ export const siteSirvices = {
 
     async find(id: string) {
         return Site.findById(id).lean();
+    },
+
+    async findSitesCheckNeeded() {
+        return Site.find({$or: [
+            {lastChecked: {$lte: (new Date(Date.now() - Number(process.env.SCHEDULE_TIME) * 60 * 1000)) }},
+            {lastChecked: {$exists: false}}
+        ]}).lean();
+    },
+
+    async update(id: Types.ObjectId, data: Partial<ISite>) {
+        return Site.findByIdAndUpdate(id, data);
+    },
+
+    async findReportableSites() {
+        const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+        return Site.find({
+            isDown: true,
+            lastNotified: {$lte: thirtyMinsAgo}
+        }).lean();
     }
 };
 
@@ -32,7 +51,7 @@ export const siteUserServices = {
         return SiteUsers.findOne({site_id, user_id}).lean();
     },
 
-    async update(id: Types.ObjectId, data: ISiteUsers) {
+    async update(id: Types.ObjectId, data: Partial<ISiteUsers>) {
         return SiteUsers.findByIdAndUpdate(id, data);
     },
 

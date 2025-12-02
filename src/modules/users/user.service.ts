@@ -1,8 +1,8 @@
 // import crypto from 'crypto';
 import type { Types } from "mongoose";
 import type { idParamsDto } from "../../utilities/public.schema.js";
-import { User, UserVerify } from "./user.model.js";
-import type { CreateUserDto, VerifyUserServiceDto } from "./user.schema.js";
+import { User, UserVerify, type IUserVerification } from "./user.model.js";
+import type { CreateUserDto } from "./user.schema.js";
 
 type UsernameOrEmail = {
     username?: string, 
@@ -28,7 +28,13 @@ export const userServices = {
         if (query) return User.findOne(query)
     },
 
-    async produceVerifyChannel(data: VerifyUserServiceDto) {
+    async produceVerifyChannel(data: Partial<IUserVerification>) {
         return UserVerify.create(data);
+    }
+};
+
+export const userVerifyServices = {
+    async findByUserAndChannel(user_id: Types.ObjectId, channel: string) {
+        return UserVerify.findOne({user_id, channel});
     }
 }

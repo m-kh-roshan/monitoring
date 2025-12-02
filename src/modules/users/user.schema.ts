@@ -73,26 +73,39 @@ export const userInfoSchema = {
     }
 };
 
-// ===============
-// VERIFY uSER
-// ===============
-const verifyUserBody = Type.Object({
-    channel: Type.String(),
-    token: Type.String()
+// ==================================
+// SEND VERIFY EMAIL/SMS
+// ==================================
+const sendVerifyUserParams = Type.Object({
+    channel: Type.String({enum: ['email', 'sms', 'telegram']})
 });
-
-const verifyUserServiceBody = Type.Object({
-    channel: Type.String(),
-    token: Type.String(),
-    user_id: Type.String()
-});
-
-export const verifyUserSchema =  {
-    body: verifyUserBody,
-    respnse: {
-        200: answerObjectSchema
+export const sendVerifyUserSchema =  {
+    params: sendVerifyUserParams,
+    response: {
+        200: answerObjectSchema()
     }
 };
 
-export type VerifyUserDto = Static<typeof verifyUserBody>;
-export type VerifyUserServiceDto = Static<typeof verifyUserServiceBody>;
+export type VerifyUserDto = Static<typeof sendVerifyUserParams>;
+
+// ==================================
+// const verifyUserBody = Type.Object({
+//     channel: Type.String(),
+//     token: Type.String()
+// });
+
+// const verifyUserServiceBody = Type.Object({
+//     channel: Type.String(),
+//     token: Type.String(),
+//     user_id: Type.String()
+// });
+
+// export const verifyUserSchema =  {
+//     body: verifyUserBody,
+//     respnse: {
+//         200: answerObjectSchema()
+//     }
+// };
+
+// export type VerifyUserDto = Static<typeof verifyUserBody>;
+// export type VerifyUserServiceDto = Static<typeof verifyUserServiceBody>;

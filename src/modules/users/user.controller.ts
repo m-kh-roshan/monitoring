@@ -1,10 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { CreateUserDto, LoginUserDto } from "./user.schema.js";
-import { userServices } from "./user.service.js";
+import crypto from "crypto";
+import type { CreateUserDto, LoginUserDto, VerifyUserDto } from "./user.schema.js";
+import { userServices, userVerifyServices } from "./user.service.js";
 import { AppError } from "../../utilities/appError.js";
 import { answer } from "../../utilities/returns.js";
 import { compare, hash } from "bcrypt";
 import { tokenGenerator } from "../../utilities/tokenGenerator.js";
+import { confirmEmailBody, sendMail } from "../../utilities/emailConfig.js";
 
 export const register = async(req: FastifyRequest<{Body: CreateUserDto}>, reply: FastifyReply) => {
     const {username, email, password} = req.body;
@@ -41,4 +43,38 @@ export const profile = async(req: FastifyRequest, reply: FastifyReply) => {
 
     return reply.send(answer("USER_FETCHED", "user info fetched successfully", user))
 };
-// export const sendVerify
+
+// User Verify
+export const sendVerifyUser = async(req: FastifyRequest, reply: FastifyReply) => {
+    const {channel} = req.params as VerifyUserDto;
+    const {user_id} = req.user;
+
+    const user = await userServices.find(user_id);
+    if (!user) throw new AppError('User not found', 404, 'NOT_FOUND');
+
+    if(!user.email) throw new AppError('User email not found', 404, 'EMAIL_NOT_FOUND');
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const existingVerify = await userVerifyServices.findByUserAndChannel(user_id, channel);
+    if (!existingVerify) {
+        await userServices.produceVerifyChannel({
+            channel,
+            user_id,
+            token
+        });
+    } else {
+        existingVerify.token = token;
+        await existingVerify.save();
+    }
+
+    if(channel === 'email') {
+        await sendMail(
+            user.email!,
+            "Email Verification",
+            `Please use this token to verify your email: ${token}`,
+            confirmEmailBody(token, user.username)
+        );
+    }
+
+    return reply.send(answer("VERIFICATION_SENT", `Verification token sent to your ${channel} successfully.`));
+};

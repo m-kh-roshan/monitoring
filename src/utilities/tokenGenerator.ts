@@ -16,7 +16,7 @@ export async function tokenGenerator(user: IUser & Document, app: FastifyInstanc
         username: user.username
     }
     const access_token = app.jwt.sign(payload, {
-        expiresIn: "10m",
+        expiresIn: "100m",
     });
     const refresh_token = app.jwt.sign(
         {user_id: user._id},

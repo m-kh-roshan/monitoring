@@ -1,13 +1,14 @@
-import {Agenda} from "@hokify/agenda";
 
-const agenda = new Agenda({
-    db: { 
-        address: `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_AGENDA_NAME}`,
-        collection: process.env.DB_AGENDA_COLLECTION! 
-    },
-    processEvery: "1 minute",
-    maxConcurrency: 10,
-    defaultConcurrency: 5
-});
+import { configAgenda } from "./agendaConfig.js";
+import { checkSitesScheduler } from "./schedulers/checkSites.scheduler.js";
+import { sendReportsScheduler } from "./schedulers/sendReports.scheduler.js";
 
-export default agenda;
+
+export const startAgenda = async () => {
+    const agenda = configAgenda();
+    await checkSitesScheduler(agenda);
+    await sendReportsScheduler(agenda);
+
+    await agenda.start();
+    console.log("Agenda started and schedulers initialized.");
+}

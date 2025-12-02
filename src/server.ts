@@ -6,6 +6,7 @@ import userModule from "./modules/users/user.index.js";
 import db from "./plugins/db.js";
 import authPlugin from "./plugins/auth.plugin.js";
 import siteModule from "./modules/sites/site.index.js";
+import { startAgenda } from "./agenda/index.js";
 
 const app = Fastify({
     logger: {
@@ -48,7 +49,10 @@ async function start() {
     try {
         await app.listen({port: 3000});
 
-        console.log("\u2705 server running on http://localhost:3000");
+        console.log(`\u2705 server running on ${process.env.BASE_URL}`);
+
+        // Start Agenda
+        startAgenda();
     }catch(error){
         app.log.error(error);
         process.exit(1);
