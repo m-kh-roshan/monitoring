@@ -10,7 +10,7 @@ export const siteSirvices = {
         return Site.findOne({url}).lean();
     },
 
-    async find(id: string) {
+    async find(id: string | Types.ObjectId) {
         return Site.findById(id).lean();
     },
 
@@ -26,10 +26,14 @@ export const siteSirvices = {
     },
 
     async findReportableSites() {
-        const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+        const thirtyMinsAgo = new Date(Date.now() - (Number(process.env.SCHEDULE_TIME) || 30) * 60 * 1000);
         return Site.find({
             isDown: true,
-            lastNotified: {$lte: thirtyMinsAgo}
+            $or: [
+                {lastNotified: {$lte: thirtyMinsAgo}},
+                {lastNotified: {$exists: false}}
+            ]
+            
         }).lean();
     }
 };

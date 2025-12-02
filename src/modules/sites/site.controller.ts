@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { CreateSiteDto } from "./site.schema.js";
+import type { CreateSiteDto, ShowUserSiteResponseDto } from "./site.schema.js";
 import { siteSirvices, siteUserServices } from "./site.service.js";
 import { AppError } from "../../utilities/appError.js";
 import type { ISiteUsers } from "./site.model.js";
@@ -81,4 +81,35 @@ export const updateSite = async (req: FastifyRequest, reply: FastifyReply) => {
     await siteUserServices.update(checkUserDuplicateSite._id, data);
 
     return reply.send(answer("SITE_UPDATED", "Site updated successfully."))
+}
+
+export const showUserSites = async (req: FastifyRequest, reply: FastifyReply) => {
+    const {user_id, username} = req.user;
+    const user = await userServices.find(user_id);
+    if (!user) throw new AppError('User not found', 404, 'NOT_FOUND');
+
+    const userSites = await siteUserServices.userSites(user_id);
+    const siteList: ShowUserSiteResponseDto[] = [];
+    for(const userSite of userSites) {
+        const site = await siteSirvices.find(userSite.site_id);
+        if (site) {
+            const oneResponse: ShowUserSiteResponseDto = {
+            title: userSite.title!,
+            url: site.url,
+            downTime: userSite.downTime!,
+            isDown: site.isDown!
+        };
+
+        if (site.error) oneResponse.error = site?.error!;
+        
+        siteList.push(oneResponse);
+        }
+    }
+
+    const response = {
+        username: username,
+        sites: siteList
+    };
+
+    return reply.send(answer("USER_SITES_FETCH", "User sites fetch successfully", response));
 }

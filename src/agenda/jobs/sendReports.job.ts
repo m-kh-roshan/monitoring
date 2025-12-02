@@ -14,6 +14,9 @@ export default async function sendReports () {
             await siteUserServices.update(siteUser._id, {
                 downTime: (siteUser.downTime || 0) + 1
             });
+            await siteSirvices.update(site._id, {
+                lastNotified: new Date()
+            })
 
             const user = await userServices.find(siteUser.user_id);
             if (user) {

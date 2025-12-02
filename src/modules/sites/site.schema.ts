@@ -2,7 +2,7 @@ import { Type, type Static } from "@sinclair/typebox";
 import { answerObjectSchema, idObjectParams } from "../../utilities/public.schema.js";
 
 // ===============
-// creteSites
+// CREATE SITE
 // ===============
 const createSIteBody = Type.Object({
     url: Type.String({format: "uri"}),
@@ -19,7 +19,7 @@ export const createSIteSchema = {
 export type CreateSiteDto = Static<typeof createSIteBody>;
 
 // ===============
-// updateSite
+// UPDATE SITE
 // ===============
 export const updateSIteSchema = {
     params: idObjectParams,
@@ -28,3 +28,27 @@ export const updateSIteSchema = {
         201: answerObjectSchema()
     }
 };
+
+// ====================
+// SHOW USER SITES
+// ====================
+const showUserSiteObject = Type.Object({
+    title: Type.String(),
+    url: Type.String({format: "uri"}),
+    downTime: Type.Number({default: 0}),
+    isDown: Type.Boolean(),
+    error: Type.Optional(Type.Union([Type.String()]))
+});
+
+const showUserSitesResponseData = Type.Object({
+    username: Type.String(),
+    sites: Type.Array(showUserSiteObject)
+});
+
+export const showUserSitesSchema = {
+    response: {
+        200: answerObjectSchema(showUserSitesResponseData)
+    }
+};
+
+export type ShowUserSiteResponseDto = Static<typeof showUserSiteObject>;
