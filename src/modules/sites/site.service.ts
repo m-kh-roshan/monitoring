@@ -35,6 +35,10 @@ export const siteSirvices = {
             ]
             
         }).lean();
+    },
+
+    delete(id: Types.ObjectId) {
+        return Site.findByIdAndDelete(id);
     }
 };
 

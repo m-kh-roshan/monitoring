@@ -12,28 +12,9 @@ export const checkUserHasSite = async(site_id: Types.ObjectId, user_id: Types.Ob
 
 export async function urlValidation(url: string) {
     try {
-        const res = got(url, {
-            method: "GET",
-            timeout: {request: 2000 },
-            throwHttpErrors: false
-        });
-
-        return {
-            ok: true as const,
-            statusCode: (await res).statusCode
-        }
+        new URL(url);
+        return { ok: true as const };
     } catch (error) {
-        if (error instanceof RequestError) {
-            const errorCode = error.code ?? "UNKNOWN";
-            return {
-                ok: false as const,
-                error: errorCode
-            };
-        }
-        const message = error instanceof Error ? error.message : "UNKWON_ERROR";
-        return {
-            ok: false as const,
-            error: message
-        };
+        return { ok: false as const, error: (error as Error).message };
     }
 }

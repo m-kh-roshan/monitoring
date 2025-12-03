@@ -6,6 +6,8 @@ const tokenBody = Type.Object({
 });
 
 export const tokenSchema = {
+    tags: ['Users'],
+    summary: 'Refresh user token',
     body: tokenBody,
     response: {
         200: answerObjectSchema(ResponseTokenData)

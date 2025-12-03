@@ -10,6 +10,9 @@ const createSIteBody = Type.Object({
 });
 
 export const createSIteSchema = {
+    tags: ['Sites'],
+    summary: 'Create a new site to monitor',
+    security: [{ bearerAuth: [] }],
     body: createSIteBody,
     response: {
         201: answerObjectSchema()
@@ -22,6 +25,9 @@ export type CreateSiteDto = Static<typeof createSIteBody>;
 // UPDATE SITE
 // ===============
 export const updateSIteSchema = {
+    tags: ['Sites'],
+    summary: 'Update site info',
+    security: [{ bearerAuth: [] }],
     params: idObjectParams,
     body: createSIteBody,
     response: {
@@ -46,9 +52,25 @@ const showUserSitesResponseData = Type.Object({
 });
 
 export const showUserSitesSchema = {
+    tags: ['Sites'],
+    summary: 'Show all sites for a user',
+    security: [{ bearerAuth: [] }],
     response: {
         200: answerObjectSchema(showUserSitesResponseData)
     }
 };
 
 export type ShowUserSiteResponseDto = Static<typeof showUserSiteObject>;
+
+// ===============
+// DELETE SITE
+// ===============
+export const deleteSiteSchema = {
+    tags: ['Sites'],
+    summary: 'Delete a site',
+    security: [{ bearerAuth: [] }],
+    params: idObjectParams,
+    response: {
+        200: answerObjectSchema()
+    }
+};

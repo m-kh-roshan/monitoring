@@ -2,6 +2,9 @@ import { config } from "dotenv";
 config()
 import Fastify, { fastify } from "fastify";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import swagger from "@fastify/swagger";
+import swaggerUI from "@fastify/swagger-ui";
+
 import userModule from "./modules/users/user.index.js";
 import db from "./plugins/db.js";
 import authPlugin from "./plugins/auth.plugin.js";
@@ -35,6 +38,32 @@ const app = Fastify({
         }
     }
 }).withTypeProvider<TypeBoxTypeProvider>();
+
+app.register(swagger, {
+    openapi: {
+        info: {
+            title: "Monitoring API",
+            version: "1.0.0",
+            description: "API for Monitoring Application"
+        },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer"
+                }
+            }
+        }
+    }
+});
+
+app.register(swaggerUI, {
+    routePrefix: "/docs",
+    uiConfig: {
+        docExpansion: "list",
+        deepLinking: false
+    }
+});
 
 app.register(db);
 app.register(authPlugin);

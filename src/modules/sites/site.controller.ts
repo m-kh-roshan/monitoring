@@ -7,6 +7,7 @@ import { checkUserHasSite, urlValidation} from "./site.validation.js";
 import { answer } from "../../utilities/returns.js";
 import type { idParamsDto } from "../../utilities/public.schema.js";
 import { userServices } from "../users/user.service.js";
+import { deleteNoUserSites } from "./site.utils.js";
 
 export const createSite = async (req: FastifyRequest, reply: FastifyReply) => {
     const { url, title } = req.body as CreateSiteDto;
@@ -71,17 +72,28 @@ export const updateSite = async (req: FastifyRequest, reply: FastifyReply) => {
 
         const urlValidateResult = await urlValidation(url);
         if (!urlValidateResult.ok) throw new AppError(`Url is not correct. ${urlValidateResult.error}`, 400, "INVALID_URL");
+
+        await siteUserServices.delete(checkUserDuplicateSite._id);
+        await deleteNoUserSites(site._id);
+        
+        const data: ISiteUsers = {
+            user_id,
+            site_id: siteByUrl._id,
+            title: setTitle
+        };
+        
+        await siteUserServices.create(data);
+    
+        return reply.send(answer("SITE_URL_UPDATED", "Site url updated successfully."))
     }
 
-    const data: ISiteUsers = {
-        user_id,
-        site_id: siteByUrl._id,
+    await siteUserServices.update(checkUserDuplicateSite._id, {
         title: setTitle
-    };
-    await siteUserServices.update(checkUserDuplicateSite._id, data);
+    });
 
     return reply.send(answer("SITE_UPDATED", "Site updated successfully."))
-}
+
+};
 
 export const showUserSites = async (req: FastifyRequest, reply: FastifyReply) => {
     const {user_id, username} = req.user;
@@ -112,4 +124,23 @@ export const showUserSites = async (req: FastifyRequest, reply: FastifyReply) =>
     };
 
     return reply.send(answer("USER_SITES_FETCH", "User sites fetch successfully", response));
-}
+};
+
+export const deleteSite = async (req: FastifyRequest, reply: FastifyReply) => {
+    const {user_id} = req.user;
+    const {id} = req.params as idParamsDto;
+    const site = await siteSirvices.find(id);
+    if (!site) throw new AppError("Site not found", 404, "NOT_FOUND");
+
+    const user = await userServices.find(user_id);
+    if (!user) throw new AppError('User not found', 404, 'NOT_FOUND');
+
+    const siteUser = await siteUserServices.findBySiteAndUser(site._id, user_id);
+    if (!siteUser) throw new AppError("Site not found", 404, "NOT_FOUND");
+
+    await siteUserServices.delete(siteUser._id);
+    
+    await deleteNoUserSites(site._id); 
+
+    return reply.send(answer("SITE_DELETED", "Site deleted successfully."));
+};

@@ -13,6 +13,8 @@ const createUserBody = Type.Object({
 });
 
 export const createUserSchema = {
+    tags: ['Users'],
+    summary: 'Create a new user',
     body: createUserBody,
     response: {
         201: answerObjectSchema()
@@ -30,6 +32,8 @@ const loginUserBody = Pick(createUserBody, [
 ]);
 
 export const loginUserSchema = {
+    tags: ['Users'],
+    summary: 'Login user',
     body: loginUserBody,
     response: {
         200: answerObjectSchema(ResponseTokenData)
@@ -50,6 +54,9 @@ export const updateUserBody = Type.Object({
 });
 
 export const updateUserSchema = {
+    tags: ['Users'],
+    summary: 'Update user info',
+    security: [{ bearerAuth: [] }],
     body: updateUserBody,
     response: {
         200: answerObjectSchema()
@@ -73,6 +80,9 @@ const userInfoResponseObject = Type.Object({
     active_channel: Type.Optional(Type.String())
 });
 export const userInfoSchema = {
+    tags: ['Users'],
+    summary: 'Get user info',
+    security: [{ bearerAuth: [] }],
     response: {
         200: answerObjectSchema(userInfoResponseObject)
     }
@@ -90,6 +100,9 @@ const sendVerifyUserResponseObject = Type.Object({
 });
 
 export const sendVerifyUserSchema =  {
+    tags: ['Users'],
+    summary: 'Send verification for user channel',
+    security: [{ bearerAuth: [] }],
     params: sendVerifyUserParams,
     response: {
         200: answerObjectSchema(sendVerifyUserResponseObject)
@@ -106,6 +119,8 @@ const verifyEmailUserQuery = Type.Object({
 });
 
 export const verifyEmailUserSchema = {
+    tags: ['Users'],
+    summary: 'Verify user email',
     querystring: verifyEmailUserQuery,
     response: {
         200: answerObjectSchema()

@@ -1,15 +1,16 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createSIteSchema, showUserSitesSchema, updateSIteSchema } from "./site.schema.js";
-import { createSite, showUserSites, updateSite } from "./site.controller.js";
+import { createSIteSchema, deleteSiteSchema, showUserSitesSchema, updateSIteSchema } from "./site.schema.js";
+import { createSite, deleteSite, showUserSites, updateSite } from "./site.controller.js";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
 const siteRoutes: FastifyPluginAsync = async (app) => {
-    const typedApp = app.withTypeProvider<TypeBoxTypeProvider>();
-    typedApp.post("/", { preHandler: typedApp.authenticate, schema: createSIteSchema }, createSite);
+    app.post("/", { preHandler: app.authenticate, schema: createSIteSchema }, createSite);
 
-    typedApp.put("/:id", { preHandler: typedApp.authenticate, schema: updateSIteSchema }, updateSite);
+    app.put("/:id", { preHandler: app.authenticate, schema: updateSIteSchema }, updateSite);
 
-    typedApp.get("/", { preHandler: typedApp.authenticate, schema: showUserSitesSchema }, showUserSites);
+    app.get("/", { preHandler: app.authenticate, schema: showUserSitesSchema }, showUserSites);
+
+    app.delete("/", { preHandler: app.authenticate, schema: deleteSiteSchema }, deleteSite);
 }
 
 export default siteRoutes;
