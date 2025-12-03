@@ -22,17 +22,33 @@ export async function checkSite(url:string) {
     }
 }
 
+export async function checkExistChannel(user:IUser, channel: string) {
+    if ((channel === 'email' && !user.email) ||
+        (channel === 'sms' && !user.phoneNumber) ||
+        (channel === 'telegram' && !user.telegramChatId)
+    ) return false;
+
+    return true;
+}
+
+export async function checkConfirmedChannel(user:IUser, channel: string) {
+    if ((channel === 'email' && !user.is_email_confirmed) ||
+        (channel === 'sms' && !user.is_phone_confirmed) ||
+        (channel === 'telegram' && !user.is_telegram_confirmed)
+    ) return false;
+
+    return true;
+}
+
 export async function checkUserChannel(user:IUser) {
     const channel = user.active_channel;
+    if (!channel) return false;
 
-    if (channel === 'email' && !user.email) return false;
-    if (channel === 'email' && !user.is_email_confirmed) return false;
+    const exists = await checkExistChannel(user, channel);
+    if (!exists) return false;
 
-    if (channel === 'sms' && !user.phoneNumber) return false;
-    if (channel === 'sms' && !user.is_phone_confirmed) return false;
-
-    if (channel === 'telegram' && !user.telegramChatId) return false;
-    if (channel === 'telegram' && !user.is_telegram_confirmed) return false;
+    const confirmed = await checkConfirmedChannel(user, channel);
+    if (!confirmed) return false;
 
     return true;
 }

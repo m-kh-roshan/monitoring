@@ -12,7 +12,7 @@ export const answerObjectSchema = (data?: TObject) => {
         return Type.Object({
                         code: Type.String(),
                         message: Type.String(),
-                        data: data
+                        data: Type.Optional(data)
                 });
 } 
 

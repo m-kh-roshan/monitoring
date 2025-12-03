@@ -1,5 +1,6 @@
 import { siteSirvices, siteUserServices } from "../../modules/sites/site.service.js";
 import { userServices } from "../../modules/users/user.service.js";
+import { sendMessage } from "../../utilities/bot/sendMessage.js";
 import { checkUserChannel } from "../../utilities/checking.js";
 import { reportEmailBody, sendMail } from "../../utilities/emailConfig.js";
 
@@ -23,7 +24,9 @@ export default async function sendReports () {
                         await sendMail(user.email!, "Site Down Alert", "siteDown", reportEmailBody(site.url, site.error!))
                     }
 
-                    if (channel === "telegram") {}
+                    if (channel === "telegram") {
+                        await sendMessage(user.telegramChatId!, `\u26A0\uFE0F Alert: The site ${site.url} is down.\nError: ${site.error}\nTime: ${new Date().toLocaleString()}`);
+                    }
                     
                     if (channel === "sms") {}
                 }

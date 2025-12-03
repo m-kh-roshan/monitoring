@@ -8,12 +8,8 @@ const createUserBody = Type.Object({
     username: Type.String({minLength: 3}),
     email: Type.Optional(Type.String({format: "email"})),
     password: Type.String({minLength: 8}),
-    telegramChatId: Type.Optional(Type.String()),
     phoneNumber: Type.Optional(Type.String()),
-    is_email_confirmed: Type.Optional(Type.Boolean()),
-    is_phone_confirmed: Type.Optional(Type.Boolean()),
-    is_telgram_confirmed: Type.Optional(Type.Boolean()),
-    active_channel: Type.Optional(Type.String())
+    active_channel: Type.Optional(Type.String({enum: ['email', 'sms', 'telegram']}))
 });
 
 export const createUserSchema = {
@@ -45,13 +41,22 @@ export type LoginUserDto = Static<typeof loginUserBody>;
 // ===============
 // UPDATE USER
 // ===============
+export const updateUserBody = Type.Object({
+    username: Type.Optional(Type.String({minLength: 3})),
+    email: Type.Optional(Type.String({format: "email"})),
+    password: Type.Optional(Type.String({minLength: 8})),
+    phoneNumber: Type.Optional(Type.String()),
+    active_channel: Type.Optional(Type.String({enum: ['email', 'sms', 'telegram']}))
+});
+
 export const updateUserSchema = {
-    params: idObjectParams,
-    body: createUserBody,
+    body: updateUserBody,
     response: {
         200: answerObjectSchema()
     }
 };
+
+export type UpdateUserDto = Static<typeof updateUserBody>;
 
 
 // ===============
@@ -64,7 +69,7 @@ const userInfoResponseObject = Type.Object({
     phoneNumber: Type.Optional(Type.String()),
     is_email_confirmed: Type.Optional(Type.Boolean()),
     is_phone_confirmed: Type.Optional(Type.Boolean()),
-    is_telgram_confirmed: Type.Optional(Type.Boolean()),
+    is_telegram_confirmed: Type.Optional(Type.Boolean()),
     active_channel: Type.Optional(Type.String())
 });
 export const userInfoSchema = {
@@ -74,38 +79,37 @@ export const userInfoSchema = {
 };
 
 // ==================================
-// SEND VERIFY EMAIL/SMS
+// SEND VERIFY CHANNEL
 // ==================================
 const sendVerifyUserParams = Type.Object({
     channel: Type.String({enum: ['email', 'sms', 'telegram']})
 });
+
+const sendVerifyUserResponseObject = Type.Object({
+    link: Type.Optional(Type.String())
+});
+
 export const sendVerifyUserSchema =  {
     params: sendVerifyUserParams,
     response: {
-        200: answerObjectSchema()
+        200: answerObjectSchema(sendVerifyUserResponseObject)
     }
 };
 
 export type VerifyUserDto = Static<typeof sendVerifyUserParams>;
 
 // ==================================
-// const verifyUserBody = Type.Object({
-//     channel: Type.String(),
-//     token: Type.String()
-// });
+// VERIFY USER EMAIL
+// ==================================
+const verifyEmailUserQuery = Type.Object({
+    token: Type.String()
+});
 
-// const verifyUserServiceBody = Type.Object({
-//     channel: Type.String(),
-//     token: Type.String(),
-//     user_id: Type.String()
-// });
+export const verifyEmailUserSchema = {
+    querystring: verifyEmailUserQuery,
+    response: {
+        200: answerObjectSchema()
+    }
+};
 
-// export const verifyUserSchema =  {
-//     body: verifyUserBody,
-//     respnse: {
-//         200: answerObjectSchema()
-//     }
-// };
-
-// export type VerifyUserDto = Static<typeof verifyUserBody>;
-// export type VerifyUserServiceDto = Static<typeof verifyUserServiceBody>;
+export type VerifyEmailUserDto = Static<typeof verifyEmailUserQuery>;

@@ -16,7 +16,7 @@ export const siteSirvices = {
 
     async findSitesCheckNeeded() {
         return Site.find({$or: [
-            {lastChecked: {$lte: (new Date(Date.now() - Number(process.env.SCHEDULE_TIME) * 60 * 1000)) }},
+            {lastChecked: {$lte: (new Date(Date.now() - Number(process.env.SCHEDULE_TIME || 30) * 60 * 1000)) }},
             {lastChecked: {$exists: false}}
         ]}).lean();
     },

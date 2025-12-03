@@ -4,7 +4,8 @@ import { checkSite } from "../../utilities/checking.js";
 
 export default async function checkSites (job: Job) {
     console.log("Checking sites...");
-    const sites = await siteSirvices.findSitesCheckNeeded();
+   try {
+     const sites = await siteSirvices.findSitesCheckNeeded();
     console.log(`Found ${sites.length} sites to check.`);
     for (const site of sites) {
         const result = await checkSite(site.url)
@@ -15,4 +16,7 @@ export default async function checkSites (job: Job) {
             error: result.error
         });
     }
+   } catch (error) {
+    console.error("Error in checkSites job:", error);
+   }
 }
