@@ -128,7 +128,7 @@ npm start
 ### **Starting the Agenda Worker**
 
 ```bash
-node dist/agendaWorker.js
+npm run startAgenda
 ```
 
 > ⚠️ For deployment, you should run the worker using a process manager like **PM2**.
