@@ -1,5 +1,6 @@
 import { Pick, Type, type Static } from "@sinclair/typebox";
 import { answerObjectSchema, idObjectParams, ResponseTokenData } from "../../utilities/public.schema.js";
+import type { parseBody } from "got";
 
 // ===============
 // CREATE USER
@@ -8,7 +9,9 @@ const createUserBody = Type.Object({
     username: Type.String({minLength: 3}),
     email: Type.Optional(Type.String({format: "email"})),
     password: Type.String({minLength: 8}),
-    phoneNumber: Type.Optional(Type.String()),
+    phoneNumber: Type.Optional(Type.String({
+        pattern: "^09[0-9]{9}$"
+    })),
     active_channel: Type.Optional(Type.String({enum: ['email', 'sms', 'telegram']}))
 });
 
@@ -49,7 +52,9 @@ export const updateUserBody = Type.Object({
     username: Type.Optional(Type.String({minLength: 3})),
     email: Type.Optional(Type.String({format: "email"})),
     password: Type.Optional(Type.String({minLength: 8})),
-    phoneNumber: Type.Optional(Type.String()),
+    phoneNumber: Type.Optional(Type.String({
+        pattern: "^09[0-9]{9}$"
+    })),
     active_channel: Type.Optional(Type.String({enum: ['email', 'sms', 'telegram']}))
 });
 
@@ -128,3 +133,21 @@ export const verifyEmailUserSchema = {
 };
 
 export type VerifyEmailUserDto = Static<typeof verifyEmailUserQuery>;
+
+// ==================================
+// VERIFY USER PHONE NUMBER
+// ==================================
+const verifyUserPhoneNumberBody = Type.Object({
+    token: Type.String()
+});
+
+export const verifyUserPhoneNumberSchema = {
+    tags: ['Users'],
+    summary: 'Verify user phone number',
+    body: verifyUserPhoneNumberBody,
+    response: {
+        200: answerObjectSchema()
+    }
+};
+
+export type VerifyPhoneNumberUserDto = Static<typeof verifyUserPhoneNumberBody>;

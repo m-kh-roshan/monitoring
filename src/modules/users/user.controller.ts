@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import crypto from "crypto";
-import type { CreateUserDto, LoginUserDto, UpdateUserDto, VerifyEmailUserDto, VerifyUserDto } from "./user.schema.js";
+import type { CreateUserDto, LoginUserDto, UpdateUserDto, VerifyEmailUserDto, VerifyPhoneNumberUserDto, VerifyUserDto } from "./user.schema.js";
 import { userServices, userVerifyServices } from "./user.service.js";
 import { AppError } from "../../utilities/appError.js";
 import { answer } from "../../utilities/returns.js";
@@ -8,6 +8,7 @@ import { compare, hash } from "bcrypt";
 import { tokenGenerator } from "../../utilities/tokenGenerator.js";
 import { confirmEmailBody, sendMail } from "../../utilities/emailConfig.js";
 import { checkConfirmedChannel, checkExistChannel, checkUserChannel } from "../../utilities/checking.js";
+import sendSMS from "../../utilities/smsConfig.js";
 
 export const register = async(req: FastifyRequest<{Body: CreateUserDto}>, reply: FastifyReply) => {
     const {username, email, password} = req.body;
@@ -85,7 +86,7 @@ export const sendVerifyUser = async(req: FastifyRequest, reply: FastifyReply) =>
         if (!checkChannel) throw new AppError(`User has no ${channel} to verify`, 400, "CHANNEL_NOT_EXISTS");
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
+    const token = channel === "sms" ? crypto.randomBytes(6).toString("hex") : crypto.randomBytes(32).toString("hex");
     const existingVerify = await userVerifyServices.findByUserAndChannel(user_id, channel);
     if (!existingVerify) {
         await userServices.produceVerifyChannel({
@@ -111,6 +112,10 @@ export const sendVerifyUser = async(req: FastifyRequest, reply: FastifyReply) =>
         );
     }
 
+    if(channel === "sms") {
+        await sendSMS(user.phoneNumber!, `confirmed phone number code: ${token}`);
+    }
+
     return reply.send(answer("VERIFICATION_SENT", `Verification token sent to your ${channel} successfully.`));
 };
 
@@ -130,3 +135,23 @@ export const verifyUserEmail = async(req: FastifyRequest, reply: FastifyReply) =
 
     return reply.send(answer("EMAIL_VERIFIED", "User email verified successfully"));
 }
+
+export const verifyUserPhoneNumber = async(req: FastifyRequest, reply: FastifyReply) => {
+    const {user_id} = req.user;
+    const {token} = req.body as VerifyPhoneNumberUserDto;
+
+    const userVerify = await userVerifyServices.findByToken(token);
+    if (!userVerify) throw new AppError('Verification not found', 404, 'NOT_FOUND');
+
+    if (userVerify.expiresAt < new Date()) throw new AppError('Invalid or expired verification token', 400, 'INVALID_TOKEN');
+
+    const user = await userServices.find(userVerify.user_id);
+    if (!user) throw new AppError('User not found', 404, 'NOT_FOUND');
+    if (user.is_phone_confirmed) throw new AppError('Phone number is already verified', 400, 'EMAIL_ALREADY_VERIFIED');
+
+    userServices.update(user._id, {is_phone_confirmed: true});
+
+    return reply.send(answer("PHONE_NUMBER_VERIFIED", "User phone number verified successfully"));
+}
+
+

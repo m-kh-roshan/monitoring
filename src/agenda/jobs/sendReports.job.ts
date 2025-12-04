@@ -3,6 +3,7 @@ import { userServices } from "../../modules/users/user.service.js";
 import { sendMessage } from "../../utilities/bot/sendMessage.js";
 import { checkUserChannel } from "../../utilities/checking.js";
 import { reportEmailBody, sendMail } from "../../utilities/emailConfig.js";
+import sendSMS from "../../utilities/smsConfig.js";
 
 export default async function sendReports () {
     console.log("Sending reports...");
@@ -38,7 +39,9 @@ export default async function sendReports () {
                             await sendMessage(user.telegramChatId!, `\u26A0\uFE0F Alert: The site ${site.url} is down.\nError: ${site.error}\nTime: ${new Date().toLocaleString()}`);
                         }
                         
-                        if (channel === "sms") {}
+                        if (channel === "sms") {
+                            await sendSMS(user.phoneNumber!, "\u26A0\uFE0F Alert: The site ${site.url} is down.\nError: ${site.error}")
+                        }
                     }
                 }
             }
