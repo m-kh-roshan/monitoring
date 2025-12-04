@@ -40,7 +40,7 @@ export default async function sendReports () {
                         }
                         
                         if (channel === "sms") {
-                            await sendSMS(user.phoneNumber!, "\u26A0\uFE0F Alert: The site ${site.url} is down.\nError: ${site.error}")
+                            await sendSMS(user.phoneNumber!, `\u26A0\uFE0F Alert: The site ${site.url} is down.\nError: ${site.error}`)
                         }
                     }
                 }
