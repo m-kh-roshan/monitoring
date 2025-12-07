@@ -7,6 +7,7 @@ import { model, Schema, Types } from "mongoose";
 export interface ISite {
     url: string;
     lastChecked?: Date;
+    notifieable?: boolean;
     lastNotified?: Date;
     isDown?: boolean;
     error?: string | null;
@@ -20,6 +21,10 @@ const siteSchema = new Schema<ISite>({
     },
     lastChecked: {
         type: Date
+    },
+    notifieable: {
+        type: Boolean,
+        default: false
     },
     lastNotified: {
         type: Date

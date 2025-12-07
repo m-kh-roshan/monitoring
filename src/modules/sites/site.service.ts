@@ -32,7 +32,8 @@ export const siteSirvices = {
             $or: [
                 {lastNotified: {$lte: thirtyMinsAgo}},
                 {lastNotified: {$exists: false}}
-            ]
+            ],
+            notifieable: true
             
         }).lean();
     },

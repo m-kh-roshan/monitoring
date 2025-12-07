@@ -4,5 +4,5 @@ import checkSites from "../jobs/checkSites.job.js";
 
 export const checkSitesScheduler = async (agenda: Agenda) => {
     agenda.define('checkSites', checkSites);
-    await agenda.every('20 seconds', 'checkSites');
+    await agenda.every('30 seconds', 'checkSites');
 }

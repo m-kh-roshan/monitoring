@@ -19,6 +19,7 @@ export default async function checkSites (job: Job) {
         console.log(`Site: ${site.url} isDown: ${result.isDown}`);
         await siteSirvices.update(site._id, {
             lastChecked: new Date(),
+            notifieable: true,
             isDown: result.isDown,
             error: result.error
         });

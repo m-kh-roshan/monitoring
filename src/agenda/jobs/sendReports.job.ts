@@ -22,9 +22,6 @@ export default async function sendReports () {
                 await siteUserServices.update(siteUser._id, {
                     downTime: (siteUser.downTime || 0) + 1
                 });
-                await siteSirvices.update(site._id, {
-                    lastNotified: new Date()
-                })
     
                 const user = await userServices.find(siteUser.user_id);
                 if (user) {
@@ -42,6 +39,11 @@ export default async function sendReports () {
                         if (channel === "sms") {
                             await sendSMS(user.phoneNumber!, `\u26A0\uFE0F Alert: The site ${site.url} is down.\nError: ${site.error}`)
                         }
+
+                        await siteSirvices.update(site._id, {
+                            notifieable: false,
+                            lastNotified: new Date()
+                        });
                     }
                 }
             }
